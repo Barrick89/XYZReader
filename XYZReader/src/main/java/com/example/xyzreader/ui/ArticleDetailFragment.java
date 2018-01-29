@@ -10,8 +10,11 @@ import android.graphics.Color;
 import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
+import android.os.Build;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ShareCompat;
+import android.support.v4.view.animation.FastOutSlowInInterpolator;
 import android.support.v7.graphics.Palette;
 import android.text.Html;
 import android.text.format.DateUtils;
@@ -53,6 +56,7 @@ public class ArticleDetailFragment extends Fragment implements
     private DrawInsetsFrameLayout mDrawInsetsFrameLayout;
     private ColorDrawable mStatusBarColorDrawable;
 
+    private FloatingActionButton mFab;
     private int mTopInset;
     private View mPhotoContainerView;
     private ImageView mPhotoView;
@@ -113,6 +117,7 @@ public class ArticleDetailFragment extends Fragment implements
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
+
         mRootView = inflater.inflate(R.layout.fragment_article_detail, container, false);
         mDrawInsetsFrameLayout = (DrawInsetsFrameLayout)
                 mRootView.findViewById(R.id.draw_insets_frame_layout);
@@ -149,6 +154,8 @@ public class ArticleDetailFragment extends Fragment implements
             }
         });
 
+        mFab = (FloatingActionButton) mRootView.findViewById(R.id.share_fab);
+
         bindViews();
         updateStatusBar();
         return mRootView;
@@ -180,6 +187,26 @@ public class ArticleDetailFragment extends Fragment implements
             return max;
         } else {
             return val;
+        }
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        // animating the share botton
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            mFab.setAlpha(0f);
+            mFab.setScaleX(0f);
+            mFab.setScaleY(0f);
+            mFab.setTranslationZ(1f);
+            mFab.animate()
+                    .alpha(1f)
+                    .scaleX(1f)
+                    .scaleY(1f)
+                    .translationZ(25f)
+                    .setInterpolator(new FastOutSlowInInterpolator())
+                    .setStartDelay(500)
+                    .start();
         }
     }
 
@@ -255,6 +282,7 @@ public class ArticleDetailFragment extends Fragment implements
             bylineView.setText("N/A" );
             bodyView.setText("N/A");
         }
+
     }
 
     @Override
