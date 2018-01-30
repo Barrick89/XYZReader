@@ -9,6 +9,7 @@
     android:clickable="true"
     android:focusable="true"
     android:foreground="?selectableItemBackground"
+    android:stateListAnimator="@drawable/lift_on_touch"
     card_view:cardUseCompatPadding="true"
     card_view:cardElevation="2dp">
 
