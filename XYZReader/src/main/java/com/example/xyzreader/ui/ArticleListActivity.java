@@ -7,7 +7,11 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.Loader;
 import android.database.Cursor;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.Snackbar;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
@@ -46,6 +50,7 @@ public class ArticleListActivity extends AppCompatActivity implements
     private SwipeRefreshLayout mSwipeRefreshLayout;
     private RecyclerView mRecyclerView;
     private Adapter mAdapter;
+    private CoordinatorLayout mCoordinator;
 
     private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.sss");
     // Use default locale format
@@ -56,21 +61,40 @@ public class ArticleListActivity extends AppCompatActivity implements
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_article_list);
 
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
+        mCoordinator = (CoordinatorLayout) findViewById(R.id.main_content);
+        mRecyclerView = (RecyclerView) findViewById(R.id.recycler_view);
 
         mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_refresh_layout);
         mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                refresh();
+                startLoader();
             }
         });
 
-        mRecyclerView = (RecyclerView) findViewById(R.id.recycler_view);
-        if (mAdapter == null) {
-            getLoaderManager().initLoader(0, null, this);
+        startLoader();
+    }
+
+    public void startLoader() {
+        ConnectivityManager connectivityManager =
+                (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
+
+        if (networkInfo != null && networkInfo.isConnected()) {
+            if (mAdapter == null) {
+                getLoaderManager().restartLoader(0, null, this);
+            } else {
+                mSwipeRefreshLayout.setRefreshing(false);
+            }
+        } else {
+            Snackbar snackbar = Snackbar
+                    .make(mCoordinator, R.string.snackbar, Snackbar.LENGTH_LONG);
+            snackbar.show();
+            mSwipeRefreshLayout.setRefreshing(false);
         }
     }
 
@@ -114,6 +138,7 @@ public class ArticleListActivity extends AppCompatActivity implements
 
     @Override
     public void onLoadFinished(Loader<Cursor> cursorLoader, Cursor cursor) {
+        mSwipeRefreshLayout.setRefreshing(false);
         mAdapter = new Adapter(cursor);
         mAdapter.setHasStableIds(true);
         mRecyclerView.setAdapter(mAdapter);
@@ -130,7 +155,6 @@ public class ArticleListActivity extends AppCompatActivity implements
 
     private class Adapter extends RecyclerView.Adapter<ViewHolder> {
         private Cursor mCursor;
-
 
         private int lastPosition = -1;
 
@@ -153,7 +177,6 @@ public class ArticleListActivity extends AppCompatActivity implements
                 public void onClick(View view) {
                     startActivity(new Intent(Intent.ACTION_VIEW,
                             ItemsContract.Items.buildItemUri(getItemId(vh.getAdapterPosition()))));
-
                 }
             });
             return vh;
