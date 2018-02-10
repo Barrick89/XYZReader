@@ -51,6 +51,7 @@ public class ArticleListActivity extends AppCompatActivity implements
     private RecyclerView mRecyclerView;
     private Adapter mAdapter;
     private CoordinatorLayout mCoordinator;
+    private static boolean mIsDatabaseRefreshed;
 
     private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.sss");
     // Use default locale format
@@ -59,7 +60,7 @@ public class ArticleListActivity extends AppCompatActivity implements
     private GregorianCalendar START_OF_EPOCH = new GregorianCalendar(2, 1, 1);
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_article_list);
@@ -85,11 +86,14 @@ public class ArticleListActivity extends AppCompatActivity implements
         NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
 
         if (networkInfo != null && networkInfo.isConnected()) {
-            if (mAdapter == null) {
-                getLoaderManager().restartLoader(0, null, this);
-            } else {
-                mSwipeRefreshLayout.setRefreshing(false);
+
+            getLoaderManager().initLoader(0, null, this);
+
+            if (!mIsDatabaseRefreshed) {
+                refresh();
+                mIsDatabaseRefreshed = true;
             }
+
         } else {
             Snackbar snackbar = Snackbar
                     .make(mCoordinator, R.string.snackbar, Snackbar.LENGTH_LONG);
