@@ -14,8 +14,8 @@ import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.support.v7.widget.Toolbar;
 import android.text.Html;
 import android.text.format.DateUtils;
@@ -146,9 +146,8 @@ public class ArticleListActivity extends AppCompatActivity implements
         mAdapter = new Adapter(cursor);
         mAdapter.setHasStableIds(true);
         mRecyclerView.setAdapter(mAdapter);
-        int columnCount = getResources().getInteger(R.integer.list_column_count);
-        StaggeredGridLayoutManager sglm =
-                new StaggeredGridLayoutManager(columnCount, StaggeredGridLayoutManager.VERTICAL);
+        GridLayoutManager sglm =
+                new GridLayoutManager(this, 2);
         mRecyclerView.setLayoutManager(sglm);
     }
 
