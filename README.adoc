@@ -15,5 +15,5 @@ is colored in relation to the primary color of the image. The up button
 floats out of the screen at a certain scrolling point. The activity uses
 parallax scrolling:
 
-<img src="XYZReader_Images/device-2018-04-14-223541" width="300">
+<img src="XYZReader_Images/device-2018-04-14-223541.png" width="300">
 
